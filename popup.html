@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>THE DARK MODE RISES</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="icon-wrapper">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="moon-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </div>
+      <h1>THE DARK MODE RISES</h1>
+    </header>
+    
+    <div class="card toggle-container">
+      <span id="status">OFF</span>
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="card mode-section">
+      <label for="modeSelect">Operation Mode</label>
+      <div class="select-wrapper">
+        <select id="modeSelect">
+          <option value="invert">Smart Invert</option>
+          <option value="simple">Simple Dark</option>
+        </select>
+        <svg class="chevron" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </div>
+    
+    <div class="card settings-section">
+      <div class="setting-row">
+        <label>Brightness <span id="brightnessVal">100%</span></label>
+        <input type="range" id="brightness" min="50" max="150" value="100">
+      </div>
+      <div class="setting-row">
+        <label>Contrast <span id="contrastVal">100%</span></label>
+        <input type="range" id="contrast" min="50" max="150" value="100">
+      </div>
+      <div class="setting-row toggle-row">
+        <label>Blue Light Filter</label>
+        <label class="switch small">
+          <input type="checkbox" id="blueLightToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row toggle-row">
+        <label>Force Dark Mode</label>
+        <label class="switch small">
+          <input type="checkbox" id="forceDarkToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p id="nativeDarkStatus" class="status-msg hidden">Native Dark Mode Detected</p>
+      <button id="resetSettings" class="secondary-btn">Reset to Default</button>
+    </div>
+
+    <div class="card schedule-section">
+      <div class="setting-row toggle-row">
+        <label>Auto-Schedule</label>
+        <label class="switch small">
+          <input type="checkbox" id="scheduleToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div id="scheduleInputs" class="hidden">
+        <div class="time-inputs">
+          <div>
+            <label>Start</label>
+            <input type="time" id="startTime" value="19:00">
+          </div>
+          <div>
+            <label>End</label>
+            <input type="time" id="endTime" value="07:00">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card blacklist-section">
+      <h3>Target Exclusions</h3>
+      <p class="hint">One domain per line</p>
+      <textarea id="blacklist" rows="4" placeholder="EXAMPLE.COM"></textarea>
+      <button id="saveBtn">Execute Save</button>
+      <p id="saveStatus"></p>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
