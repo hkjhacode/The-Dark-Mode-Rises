@@ -62,21 +62,61 @@ function isAlreadyDark() {
   // If force dark is enabled, ignore native check
   if (settings.forceDark) return false;
 
-  // Check system preference
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    // Check if body background is actually dark
-    const bgColor = window.getComputedStyle(document.body).backgroundColor;
-    // Simple check: if RGB values are low. 
-    // rgb(0,0,0) to approx rgb(50,50,50)
+  // Helper to get RGB from computed style
+  function getRGB(el) {
+    const style = window.getComputedStyle(el);
+    const bgColor = style.backgroundColor;
+    if (!bgColor) return null;
+    
+    // Handle transparent
+    if (bgColor === 'transparent' || bgColor === 'rgba(0, 0, 0, 0)') return null;
+
     const rgb = bgColor.match(/\d+/g);
-    if (rgb && rgb.length === 3) {
-      if (parseInt(rgb[0]) < 60 && parseInt(rgb[1]) < 60 && parseInt(rgb[2]) < 60) {
-        // Notify popup
-        chrome.runtime.sendMessage({ action: "nativeDarkDetected" });
-        return true;
-      }
+    if (rgb && rgb.length >= 3) {
+      return { r: parseInt(rgb[0]), g: parseInt(rgb[1]), b: parseInt(rgb[2]) };
+    }
+    return null;
+  }
+
+  // Check brightness (0-255)
+  function isDark(rgb) {
+    if (!rgb) return false;
+    // YIQ formula for brightness
+    const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+    return brightness < 128; // Standard threshold
+  }
+
+  const bodyRGB = getRGB(document.body);
+  const htmlRGB = getRGB(document.documentElement);
+
+  // If body has a color and it's dark
+  if (bodyRGB && isDark(bodyRGB)) {
+    chrome.runtime.sendMessage({ action: "nativeDarkDetected" });
+    return true;
+  }
+
+  // If body is transparent but html is dark
+  if (!bodyRGB && htmlRGB && isDark(htmlRGB)) {
+    chrome.runtime.sendMessage({ action: "nativeDarkDetected" });
+    return true;
+  }
+
+  // Fallback: Check prefers-color-scheme as a hint, but only if we couldn't determine color
+  // or if the color found was ambiguous. 
+  // Actually, if the user says "ignore native dark mode", we mostly care about visual darkness.
+  // But some sites use images for background.
+  
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    // If we are here, it means background is likely light or transparent-default-white.
+    // But if the site SAYS it supports dark mode, it might be using canvas or complex layers.
+    // Let's check if there is a meta color-scheme
+    const meta = document.querySelector('meta[name="color-scheme"]');
+    if (meta && meta.content.includes('dark')) {
+       chrome.runtime.sendMessage({ action: "nativeDarkDetected" });
+       return true;
     }
   }
+
   return false;
 }
 
